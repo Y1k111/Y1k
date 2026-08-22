@@ -4261,6 +4261,62 @@ input:checked + .slider:before {
 
 /* ▲▲▲ 新CSS粘贴结束 ▲▲▲ */
 
+
+/* iPhone PWA fullscreen fixes: allow Safari Add to Home Screen to draw into the
+   notch/Dynamic Island area while keeping interactive UI inside safe areas. */
+html {
+    height: 100%;
+    height: -webkit-fill-available;
+    background-color: #000;
+}
+
+body {
+    min-height: 100%;
+    min-height: -webkit-fill-available;
+    background-color: #000;
+}
+
+#phone-screen {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+}
+
+#status-bar {
+    display: none !important;
+}
+
+.header, .qzone-header {
+    padding-top: calc(15px + env(safe-area-inset-top)) !important;
+}
+
+#home-screen {
+    padding-top: calc(20px + env(safe-area-inset-top)) !important;
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)) !important;
+}
+
+#notification-bar {
+    top: calc(8px + env(safe-area-inset-top)) !important;
+}
+
+#chat-input-area {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+}
+
+@supports (padding: max(0px)) {
+    .header, .qzone-header {
+        padding-top: max(15px, env(safe-area-inset-top)) !important;
+    }
+
+    #home-screen {
+        padding-top: max(20px, env(safe-area-inset-top)) !important;
+        padding-bottom: max(50px, env(safe-area-inset-bottom)) !important;
+    }
+
+    #notification-bar {
+        top: max(8px, env(safe-area-inset-top)) !important;
+    }
+}
+
     </style>
 <style id="dynamic-font-style"></style><style id="custom-bubble-style"></style><style id="preview-bubble-style"></style></head>
 <body>

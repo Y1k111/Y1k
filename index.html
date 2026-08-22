@@ -234,7 +234,7 @@ body {
 
         .message-bubble.user { flex-direction: row-reverse; }
         #typing-indicator { align-self: flex-start; display: none; margin: 0 10px 10px; color: var(--text-secondary); }
-        #chat-input-area { flex-shrink: 0; padding: 8px; background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; }
+        #chat-input-area { flex-shrink: 0; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 5px; box-sizing: border-box; }
         #chat-input-main-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
         #chat-input { flex-grow: 1; border: none; padding: 10px 15px; border-radius: 20px; background-color: var(--secondary-bg); font-size: 16px; max-height: 100px; resize: none; }
         .action-button { border: none; color: white; border-radius: 20px; cursor: pointer; font-weight: 600; font-size: 14px; flex-shrink: 0; }
@@ -528,10 +528,12 @@ body {
     width: 100%;
     z-index: 15; /* 确保它在视图之上 */
     display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
     border-top: 1px solid var(--border-color);
     background-color: rgba(247, 247, 247, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    box-sizing: border-box;
 }
 
 .nav-item {
@@ -5567,17 +5569,49 @@ body {
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
 
 <script>
+    let lockedAppViewportHeight = 0;
+    let lockedAppViewportWidth = 0;
+
     function syncAppViewportHeight() {
-        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-        document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+        const visualViewport = window.visualViewport;
+        const viewportHeight = Math.ceil(Math.max(
+            visualViewport ? visualViewport.height : 0,
+            window.innerHeight || 0,
+            document.documentElement.clientHeight || 0
+        ));
+        const viewportWidth = Math.ceil(Math.max(
+            visualViewport ? visualViewport.width : 0,
+            window.innerWidth || 0,
+            document.documentElement.clientWidth || 0
+        ));
+
+        if (Math.abs(viewportWidth - lockedAppViewportWidth) > 40) {
+            lockedAppViewportHeight = 0;
+            lockedAppViewportWidth = viewportWidth;
+        }
+
+        lockedAppViewportHeight = Math.max(lockedAppViewportHeight, viewportHeight);
+        document.documentElement.style.setProperty('--app-height', `${lockedAppViewportHeight}px`);
     }
 
-    syncAppViewportHeight();
-    window.addEventListener('resize', syncAppViewportHeight);
-    window.addEventListener('orientationchange', syncAppViewportHeight);
+    function scheduleAppViewportSync() {
+        syncAppViewportHeight();
+        requestAnimationFrame(syncAppViewportHeight);
+        [80, 250, 600, 1200].forEach(delay => window.setTimeout(syncAppViewportHeight, delay));
+    }
+
+    scheduleAppViewportSync();
+    window.addEventListener('load', scheduleAppViewportSync);
+    window.addEventListener('pageshow', scheduleAppViewportSync);
+    window.addEventListener('resize', scheduleAppViewportSync);
+    window.addEventListener('orientationchange', () => {
+        lockedAppViewportHeight = 0;
+        lockedAppViewportWidth = 0;
+        scheduleAppViewportSync();
+    });
     if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', syncAppViewportHeight);
-        window.visualViewport.addEventListener('scroll', syncAppViewportHeight);
+        window.visualViewport.addEventListener('resize', scheduleAppViewportSync);
+        window.visualViewport.addEventListener('scroll', scheduleAppViewportSync);
     }
 
 
@@ -5979,6 +6013,7 @@ db.version(23).stores({
         // ===================================================================
 
         function showScreen(screenId) {
+            scheduleAppViewportSync();
             if (screenId === 'chat-list-screen') {
                 window.renderChatListProxy(); 
                 switchToChatListView('messages-view');
@@ -5994,6 +6029,7 @@ db.version(23).stores({
                 document.getElementById('font-url-input').value = state.globalSettings.fontUrl || '';
                 applyCustomFont(state.globalSettings.fontUrl || '', true);
             }
+            scheduleAppViewportSync();
         }
         window.updateListenTogetherIconProxy = () => {};
 

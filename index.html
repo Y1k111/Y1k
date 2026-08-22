@@ -7,12 +7,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/CMZqNMRh/IMG-6497.jpg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f0f2f5">
 
     <title>EPhone</title>
     <script src="./EPhone_files/dexie.js.下载"></script>
     <style>
         @font-face { font-family: 'bulangni'; src: url('') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        :root { --screen-width: 350px; --screen-height: 650px; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #007bff; }
+        :root { --screen-width: 350px; --screen-height: 650px; --app-height: 100dvh; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #007bff; }
         html { width: 100%; height: 100%; overflow: hidden; background-color: #f0f2f5; }
 
 /* ▼▼▼ 请用下面这【一整块】全新的代码，替换掉所有旧的 body, phone-frame, phone-screen 等样式 ▼▼▼ */
@@ -22,7 +23,7 @@ body {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100%;
+    height: var(--app-height, 100dvh);
     overflow: hidden;
     margin: 0;
     font-family: 'bulangni', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -37,7 +38,7 @@ body {
     inset: 0;
     width: 100vw;
     height: 100vh;
-    height: 100dvh;
+    height: var(--app-height, 100dvh);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -61,8 +62,9 @@ body {
 }
 
 @supports (-webkit-touch-callout: none) {
+    body,
     #phone-screen {
-        height: -webkit-fill-available;
+        height: var(--app-height, -webkit-fill-available);
     }
 }
 
@@ -5565,6 +5567,19 @@ body {
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
 
 <script>
+    function syncAppViewportHeight() {
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+    }
+
+    syncAppViewportHeight();
+    window.addEventListener('resize', syncAppViewportHeight);
+    window.addEventListener('orientationchange', syncAppViewportHeight);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', syncAppViewportHeight);
+        window.visualViewport.addEventListener('scroll', syncAppViewportHeight);
+    }
+
 
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
     // gemini如果是多个密钥, 那么随机获取一个

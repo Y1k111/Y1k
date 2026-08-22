@@ -2,45 +2,52 @@
 <!-- saved from url=(0051)https://lcy-an.github.io/ephone-app/borderless.html -->
 <html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/CMZqNMRh/IMG-6497.jpg">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#f0f2f5">
 
     <title>EPhone</title>
     <script src="./EPhone_files/dexie.js.下载"></script>
     <style>
         @font-face { font-family: 'bulangni'; src: url('') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        :root { --screen-width: 350px; --screen-height: 650px; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #007bff; }
-        html { height: 100%; overflow: hidden; }
+        :root { --screen-width: 350px; --screen-height: 650px; --app-height: 100dvh; --secondary-bg: #ffffff; --border-color: #e0e0e0; --text-primary: #1f1f1f; --text-secondary: #8a8a8a; --accent-color: #007bff; }
+        html { width: 100%; height: 100%; overflow: hidden; background-color: #f0f2f5; }
 
 /* ▼▼▼ 请用下面这【一整块】全新的代码，替换掉所有旧的 body, phone-frame, phone-screen 等样式 ▼▼▼ */
 
 /* 1. 重置 body，使其成为一个干净的画布 */
 body {
-    height: 100%;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: var(--app-height, 100dvh);
     overflow: hidden;
     margin: 0;
     font-family: 'bulangni', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-weight: normal;
-    background-color: #f0f2f5; 
+    background-color: #f0f2f5;
+    overscroll-behavior: none;
 }
 
 /* 2. 让 #phone-screen 成为新的“根”容器，撑满整个浏览器窗口 */
 #phone-screen {
-    width: 100%;
-    height: 100%;
-    position: relative;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: var(--app-height, 100dvh);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: #000; /* 保留一个默认的黑色背景 */
+    background-color: #f0f2f5;
 }
 
 /* 3. 【核心】隐藏掉模拟器的状态栏 */
 #status-bar {
-    display: none;
+    display: none !important;
 }
 
 /* 4. 【核心】让所有页面的头部自动适应iPhone的“刘海”安全区 */
@@ -54,7 +61,29 @@ body {
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
 }
 
-        #status-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 10; font-size: 14px; box-sizing: border-box; pointer-events: none; }
+@supports (-webkit-touch-callout: none) {
+    body,
+    #phone-screen {
+        height: var(--app-height, -webkit-fill-available);
+    }
+}
+
+@supports (padding: max(0px)) {
+    .header, .qzone-header {
+        padding-top: max(15px, env(safe-area-inset-top));
+    }
+
+    #home-screen {
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-bottom: max(50px, env(safe-area-inset-bottom));
+    }
+
+    #notification-bar {
+        top: max(8px, env(safe-area-inset-top));
+    }
+}
+
+        #status-bar { position: absolute; top: 0; left: 0; width: 100%; padding: 12px 20px; display: none !important; justify-content: space-between; align-items: center; color: white; z-index: 10; font-size: 14px; box-sizing: border-box; pointer-events: none; }
         #status-bar-time { font-weight: 600; }
         .battery-container { display: flex; align-items: center; gap: 5px; }
         .battery-icon { width: 25px; height: 12px; border: 1px solid white; border-radius: 3px; position: relative; padding: 1px; }
@@ -65,7 +94,7 @@ body {
         @keyframes charge-breath { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .screen { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; flex-direction: column; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .screen.active { opacity: 1; visibility: visible; z-index: 1; }
-        .header { position: relative; z-index: 15; flex-shrink: 0; padding: 15px 20px; padding-top: 45px; background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600; }
+        .header { position: relative; z-index: 15; flex-shrink: 0; padding: 15px 20px; padding-top: calc(15px + env(safe-area-inset-top)); background-color: rgba(247, 247, 247, 0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 600; }
         .header .header-actions { display: flex; align-items: center; gap: 15px; }
         .header .back-btn, .header .action-btn { font-size: 24px; cursor: pointer; width: 30px; text-align: center; color: var(--accent-color); display: flex; align-items: center; justify-content: center; }
 
@@ -76,7 +105,7 @@ body {
 
         .header .action-btn img { height: 26px; }
         .header .save-btn { font-size: 16px; color: var(--accent-color); font-weight: 600; cursor: pointer; }
-        #home-screen { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 20px; padding-top: 80px; padding-bottom: 50px; box-sizing: border-box; background-size: cover; background-position: center; }
+        #home-screen { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); padding-bottom: calc(50px + env(safe-area-inset-bottom)); box-sizing: border-box; background-size: cover; background-position: center; }
         #clock-container { text-align: center; color: white; text-shadow: 0 3px 8px rgba(0,0,0,0.4); margin-bottom: 20px; flex-shrink: 0; }
         #main-time { font-size: 80px; font-weight: 200; }
         #main-date { font-size: 18px; font-weight: 500; }
@@ -531,7 +560,7 @@ body {
     z-index: 10; /* z-index 保持，或者可以更高 */
     flex-shrink: 0; /* 防止被压缩 */
     padding: 15px 20px;
-    padding-top: 45px;
+    padding-top: calc(15px + env(safe-area-inset-top));
     background-color: rgba(247, 247, 247, 0.7); 
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -5482,6 +5511,19 @@ input:checked + .slider:before {
 <!-- ▲▲▲ 新HTML粘贴结束 ▲▲▲ -->
 
 <script>
+    function syncAppViewportHeight() {
+        const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+    }
+
+    syncAppViewportHeight();
+    window.addEventListener('resize', syncAppViewportHeight);
+    window.addEventListener('orientationchange', syncAppViewportHeight);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', syncAppViewportHeight);
+        window.visualViewport.addEventListener('scroll', syncAppViewportHeight);
+    }
+
 
         const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
     // gemini如果是多个密钥, 那么随机获取一个

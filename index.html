@@ -5572,12 +5572,23 @@ body {
     let lockedAppViewportHeight = 0;
     let lockedAppViewportWidth = 0;
 
+    function getStandaloneScreenHeight() {
+        const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+        if (!isStandalone || !window.screen) return 0;
+
+        const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+        return isPortrait
+            ? Math.max(window.screen.width || 0, window.screen.height || 0)
+            : Math.min(window.screen.width || 0, window.screen.height || 0);
+    }
+
     function syncAppViewportHeight() {
         const visualViewport = window.visualViewport;
         const viewportHeight = Math.ceil(Math.max(
             visualViewport ? visualViewport.height : 0,
             window.innerHeight || 0,
-            document.documentElement.clientHeight || 0
+            document.documentElement.clientHeight || 0,
+            getStandaloneScreenHeight()
         ));
         const viewportWidth = Math.ceil(Math.max(
             visualViewport ? visualViewport.width : 0,
@@ -5604,6 +5615,8 @@ body {
     window.addEventListener('load', scheduleAppViewportSync);
     window.addEventListener('pageshow', scheduleAppViewportSync);
     window.addEventListener('resize', scheduleAppViewportSync);
+    window.addEventListener('focus', scheduleAppViewportSync);
+    document.addEventListener('visibilitychange', scheduleAppViewportSync);
     window.addEventListener('orientationchange', () => {
         lockedAppViewportHeight = 0;
         lockedAppViewportWidth = 0;
